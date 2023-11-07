@@ -23,6 +23,7 @@
 hs_err_pid*
 replay_pid*
 
+
 # Gradle files
 .gradle/
 build/
@@ -56,3 +57,4 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
