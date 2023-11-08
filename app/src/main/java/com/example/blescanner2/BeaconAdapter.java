@@ -22,9 +22,12 @@ public class BeaconAdapter extends BaseAdapter {
     private float tempAlpha;
     private int lossNum;
 
-    public BeaconAdapter(Vector<Beacon> beacons, LayoutInflater layoutInflater) {
+    private int exitNum;
+
+    public BeaconAdapter(Vector<Beacon> beacons, LayoutInflater layoutInflater, int exitNum) {
         this.beacons = beacons;
         this.layoutInflater = layoutInflater;
+        this.exitNum = exitNum;
     }
 
 //    public BeaconAdapter(ArrayList<Beacon> beacons, LayoutInflater layoutInflater) {
@@ -54,20 +57,33 @@ public class BeaconAdapter extends BaseAdapter {
         BeaconHolder beaconHolder;
         if (convertView == null) {
             beaconHolder = new BeaconHolder();
+
+//            beaconHolder.message = convertView.findViewById(R.id.message);
+
             convertView = layoutInflater.inflate(R.layout.item, parent, false);
             beaconHolder.address = convertView.findViewById(R.id.address);
             beaconHolder.rssi = convertView.findViewById(R.id.rssi);
             beaconHolder.distance = convertView.findViewById(R.id.distance);
-            beaconHolder.time = convertView.findViewById(R.id.time);
+
+            //beaconHolder.time = convertView.findViewById(R.id.time);
             convertView.setTag(beaconHolder);
         } else {
             beaconHolder = (BeaconHolder)convertView.getTag();
         }
 
-        beaconHolder.time.setText("시간 :" + beacons.get(position).getNow());
-        beaconHolder.address.setText("MAC Addr :"+beacons.get(position).getAddress());
+//        beaconHolder.time.setText("시간 :" + beacons.get(position).getNow());
+//        beaconHolder.address.setText("Beacon Num :"+ beacons.get(position).getAddress());
+
+//        if(exitNum != 0) {
+//            //beaconHolder.message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+//            beaconHolder.message.setText("\"가장 가까운 비상구는 번 비상구 입니다.\"");
+//        } else {
+//            beaconHolder.message.setText("\"위치를 측정 중입니다...\"");
+//        }
+        beaconHolder.address.setText("Beacon Num : "+ position);
         beaconHolder.rssi.setText("RSSI :"+beacons.get(position).getRssi() + "dBm");
         beaconHolder.distance.setText("Distance :" + String.format("%.2f", calculateDistance( beacons.get(position).getRssi())) + "m");
+
 
 
         return convertView;
@@ -83,10 +99,13 @@ public class BeaconAdapter extends BaseAdapter {
         return distance;
     }
 
+
+
     private class BeaconHolder {
         TextView address;
         TextView rssi;
         TextView distance;
         TextView time;
+        TextView message;
     }
 }

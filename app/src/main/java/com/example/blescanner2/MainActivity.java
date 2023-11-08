@@ -16,6 +16,7 @@ import android.bluetooth.le.ScanSettings;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 import com.android.volley.AuthFailureError;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     BeaconAdapter beaconAdapter;
 
     ListView beaconListView;
+    TextView message;
 
     ScanSettings.Builder mScanSettings;
 
@@ -90,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
 
     String url;
 
+    double responseX;
+    double responseY;
+
+    int exitNum;
+
+    int triangleNum;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +114,10 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.BLUETOOTH_SCAN,
                         Manifest.permission.BLUETOOTH_CONNECT}, PERMISSIONS);
 
+        message = (TextView) findViewById(R.id.message);
         beaconListView = (ListView) findViewById(R.id.beaconListView);
+
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
@@ -209,11 +222,15 @@ public class MainActivity extends AppCompatActivity {
 
         // 서버에 요청할 주소
 //        url = "http://192.168.28.195:8080/api/distance"; // 희진 폰 핫스팟 IP -> 테스트용
-        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
-//        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
+//        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
+        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
 
         Log.i("OnCreate Finish !!!!!!!!!!!", "OnCreate Finish !!!!!!!!!!!!");
 
+        exitNum = 0;
+
+        responseX= -1.0;
+        responseY= -1.0;
 
 }
 
@@ -246,10 +263,23 @@ public class MainActivity extends AppCompatActivity {
                                 beacon.set(0, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(0).getNow());
 
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+//                                    message.setText("\"가장 가까운 비상구는 번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
+
+
 //                                beacon.set(0, new Beacon("0",1,"1", 1));
                             }
                         });
@@ -310,10 +340,21 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(1, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(1).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+
+
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(1, new Beacon("1",1,"1", 1));
                             }
                         });
@@ -376,10 +417,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(2, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(2).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(2, new Beacon("2",1,"1", 1));
 
                             }
@@ -440,10 +490,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(3, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(3).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(3, new Beacon("3",1,"1", 1));
                             }
                         });
@@ -502,10 +561,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(4, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(4).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(4, new Beacon("4",1,"1", 1));
                             }
                         });
@@ -564,10 +632,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(5, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(5).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(5, new Beacon("5",1,"1", 1));
                             }
                         });
@@ -627,10 +704,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(6, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(6).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(6, new Beacon("6",1,"1", 1));
                             }
                         });
@@ -689,10 +775,19 @@ public class MainActivity extends AppCompatActivity {
 //                                vectorClear();
                                 beacon.set(7, new Beacon(scanResult.getDevice().getAddress(), scanResult.getRssi(), simpleDateFormat.format(new Date()), calculateDistance(scanResult.getRssi())));
                                 Log.i("time", "Time : "+ beacon.get(7).getNow());
-                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater());
+                                sendRequest(beacon);
+                                if(responseX != -1 && responseY != -1) {
+                                    exitNum = getExitNum();
+                                }
+
+                                if(exitNum != 0) {
+                                    message.setText("\"가장 가까운 비상구는 " + exitNum + "번 비상구 입니다.\"");
+                                } else {
+                                    message.setText("\"위치를 측정 중입니다...\"");
+                                }
+                                beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-                                sendRequest(beacon);
 //                                beacon.set(7, new Beacon("7",1,"1", 1));
                             }
                         });
@@ -764,10 +859,11 @@ public class MainActivity extends AppCompatActivity {
                     //위치측위 성공 0은 실패
                     try {
                         JSONObject jsonObject = new JSONObject(response);   //response가 JSON타입이 아닐 수 있어서 예외처리 해주기
-                        int triangleNum = jsonObject.getInt("triangleNum");
+                        triangleNum = (int)jsonObject.getDouble("triangleNum");
+                        responseX = jsonObject.getDouble("x");
+                        responseY = jsonObject.getDouble("y");
 
                         //위치측위 성공시 먼 비콘 값들 삭제
-
                         partClear(triangleNum);
 
                     } catch (JSONException e) {
@@ -893,6 +989,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    public double setDistanceDeviation(double exitx, double exity, double x, double y) {
+        return Math.sqrt( ( Math.pow( (x-exitx), 2) ) + ( Math.pow(y-exity, 2) ) );
+    }
+
+    public int getExitNum() {
+
+        double exit1x = 0;
+        double exit1y = 0;
+
+        double exit2x = 30.0;
+        double exit2y = 0;
+
+        double exit1Dis = setDistanceDeviation(exit1x, exit1y, responseX, responseY);
+        double exit2Dis = setDistanceDeviation(exit2x, exit2y, responseX, responseY);
+
+        if(exit1Dis <= exit2Dis) {
+            return 1;
+        }else {
+            return 2;
+        }
+        //return 1;
+    }
+
+
+
 
 
 
