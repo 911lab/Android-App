@@ -222,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 서버에 요청할 주소
 //        url = "http://192.168.28.195:8080/api/distance"; // 희진 폰 핫스팟 IP -> 테스트용
-//        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
-        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
+        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
+//        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
 
         Log.i("OnCreate Finish !!!!!!!!!!!", "OnCreate Finish !!!!!!!!!!!!");
 
