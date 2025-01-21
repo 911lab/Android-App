@@ -221,9 +221,9 @@ public class MainActivity extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(this);    // this==getApplicationContext();
 
         // 서버에 요청할 주소
-//        url = "http://192.168.28.195:8080/api/distance"; // 희진 폰 핫스팟 IP -> 테스트용
-        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
-//        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
+//        url = "http://192.168.103.195:8080/api/distance"; // 희진 폰 핫스팟 IP -> 테스트용
+//        url = "http://172.20.10.6:8080/api/distance"; // 재혁 폰 핫스팟 IP -> 테스트용
+        url = "http://113.198.245.104:8080/api/distance";    // 911 재혁 컴 IP
 
         Log.i("OnCreate Finish !!!!!!!!!!!", "OnCreate Finish !!!!!!!!!!!!");
 
@@ -278,8 +278,6 @@ public class MainActivity extends AppCompatActivity {
                                 beaconAdapter = new BeaconAdapter(beacon, getLayoutInflater(), exitNum);
                                 beaconListView.setAdapter(beaconAdapter);
                                 beaconAdapter.notifyDataSetChanged();
-
-
 //                                beacon.set(0, new Beacon("0",1,"1", 1));
                             }
                         });
@@ -833,20 +831,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     public double calculateDistance(double tempRssi) {
-
-        tempAlpha = -30;
-        lossNum = 4;
+        tempAlpha = -55;
+        lossNum = 3;
 
         double distance = Math.pow(10, (tempAlpha-tempRssi)/(10*lossNum));
 
         return distance;
     }
 
+
     public void sendRequest(Vector<Beacon> beacons) {
-
-
-        // 1.객체만들고 요청 주소만듦
-
         // 요청시 필요한 문자열 객체 생성  매개변수  4개(통신방식(get,post),요청url주소, new 리스너(익명클래스)-응답시필요한부분 작성함)
         stringRequest = new StringRequest(Request.Method.POST, url, new com.android.volley.Response.Listener<String>(){
             // 응답데이터를 받아오는 곳
@@ -869,10 +863,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                 }else {
-                    //로그인실패
-//                    Toast.makeText(Login.this, "로그인실패", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -932,9 +923,6 @@ public class MainActivity extends AppCompatActivity {
                 String d8 = Double.toString(beacons.get(7).getDistance());
                 String r8 = Double.toString(beacons.get(7).getRssi());
 
-
-
-
                 params.put("deviceName", deviceName);
                 params.put("distance1",d1);
                 params.put("rssi1",r1);
@@ -980,14 +968,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void partClear(int num) {
-
         for(int i=0; i<8; i++) {
             if(Math.abs(i-num) > 2) {
                 String address = Integer.toString(i);
                 beacon.set(i, new Beacon(address, 1, "1", 1));
             }
         }
-
     }
 
     public double setDistanceDeviation(double exitx, double exity, double x, double y) {
